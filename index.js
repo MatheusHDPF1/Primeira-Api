@@ -3,6 +3,28 @@
 // Iniciaremos criando uma referencia do express com a importação do modulo
 const express = require("express");
 
+//Vamos importar o modulo mongoose que fará a interface entre o 
+//nodejs e o banco de dados mongodb
+const mongoose = require("mongoose");
+
+// const url =  "codigo do banco Mongodb, mudar senha na frente do nome, mudar o nome de firstdatabase para outro
+
+mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true});
+
+
+//vamos criar a estrutura da tabela clientes com o comando do Schema
+const tabela = mongoose.Schema({
+    nome:{type:String, required:true},
+    email:{type:String, required:true, unique:true},
+    cpf:{type:String, required:true, unique:true},
+    usuario:{type:String, required:true,unique:true },
+    senha:{type:String, required:true,unique:true },
+
+});
+
+// execução da tabela 
+const Cliente = mongoose.model("tbcliente",tabela);
+
 // criar uma referencia do servidor express para utilizá-lo
 const app = express();
 
@@ -25,8 +47,16 @@ Ao final das rotas iremos aplicar ao servidor uma porta de comunicação, no nos
 caso será a porta 3000.
 */
 
+
 app.get("/api/cliente/",(req,res)=>{
-    res.send("Você está na rota do GET");
+    Cliente.find((erro,dados)=>{
+        if(erro){
+            return res.status(400).send({output:`Erro ao tentar ler os Clientes -> ${erro}`});
+        }
+        res.status(200).send({output:dados});
+    }
+
+    );
 });
 
 app.post("/api/cliente/cadastro",(req,res)=>{
