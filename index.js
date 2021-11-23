@@ -7,7 +7,7 @@ const express = require("express");
 //nodejs e o banco de dados mongodb
 const mongoose = require("mongoose");
 
-// const url =  "codigo do banco Mongodb, mudar senha na frente do nome, mudar o nome de firstdatabase para outro
+const url =  "mongodb+srv://matheus:matheus123@clusterclientes.lej2l.mongodb.net/primeiraapi?retryWrites=true&w=majority";
 
 mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true});
 
@@ -61,17 +61,29 @@ app.get("/api/cliente/",(req,res)=>{
 
 app.post("/api/cliente/cadastro",(req,res)=>{
 
-    res.send(`Os dados enviados foram ${req.body.nome}`);
-
+    const cliente = new Cliente(req.body);
+    cliente.save().then(()=>{
+        res.status(201).send({output:`Cliente cadastrado`})
+    })
+    .catch((erro)=>res.status(400).send({output:`Erro ao tentar cadastrar o cliente -> ${erro}`}))
 });
 
 app.put("/api/cliente/atualizar/:id",(req,res)=>{
-    res.send(`O id passado foi ${req.params.id}
-    e os dados para atualizar são ${req.body}`);
+    Cliente.findByIdAndUpdate(req.params.id,req.body,(erro,dados)=>{
+        if(erro){
+            return res.status(400).send({output:`Erro ao tentar atualizar -> ${erro}`});
+        }
+        res.status(200).send({output:`Dados atualizados`});
+    })
 });
 
 app.delete("/api/cliente/apagar/:id",(req,res)=>{
-    res.send(`O id passado foi ${req.params.id}`);
+    Cliente.findOneAndDelete(req.params.id,(erro,dados)=>{
+        if(erro){
+            return res.status(400).send({output:`Erro ao tentar apagar o Cliente->${erro}`});
+        }
+        res.status(204).send({});
+    })
 });
 
 app.listen(3000,()=>console.log("Servidor online em http://localhost:3000"));
