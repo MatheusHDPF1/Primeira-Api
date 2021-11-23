@@ -7,6 +7,9 @@ const express = require("express");
 //nodejs e o banco de dados mongodb
 const mongoose = require("mongoose");
 
+//importação do modulo bcrypt para criptografia de senhas
+const bcrypt = require("bcrypt");
+
 const url =  "mongodb+srv://matheus:matheus123@clusterclientes.lej2l.mongodb.net/primeiraapi?retryWrites=true&w=majority";
 
 mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true});
@@ -21,6 +24,22 @@ const tabela = mongoose.Schema({
     senha:{type:String, required:true,unique:true },
 
 });
+
+
+//Aplicação da criptografia do bcrypt a tabela de cadastro 
+//de clientes será feita um passo antes do salvamento dos dados do cliente vamos usar o comando pre
+tabela.pre("save", function(next){
+    let cliente = this;
+    if(!cliente.isModified('senha')) return next()
+    bcrypt.hash(cliente.senha,10,(erro,rs)=>{
+        if(erro) return console.log(`erro ao gerar senha->${erro}`);
+        cliente.senha = rs;
+        return next();
+    })
+   }
+)
+
+
 
 // execução da tabela 
 const Cliente = mongoose.model("tbcliente",tabela);
@@ -59,6 +78,21 @@ app.get("/api/cliente/",(req,res)=>{
     );
 });
 
+
+
+app.get("/api/cliente/:id",(req,res)=>{
+    Cliente.findById(req.params.id,(erro,dados)=>{
+        if(erro){
+            return res.status(400).send({output:`Erro ao tentar ler os Clientes -> ${erro}`});
+        }
+        res.status(200).send({output:dados});
+    }
+
+    );
+});
+
+
+
 app.post("/api/cliente/cadastro",(req,res)=>{
 
     const cliente = new Cliente(req.body);
@@ -67,6 +101,25 @@ app.post("/api/cliente/cadastro",(req,res)=>{
     })
     .catch((erro)=>res.status(400).send({output:`Erro ao tentar cadastrar o cliente -> ${erro}`}))
 });
+
+app.post("/api/cliente/login",(req,res)=>{
+    const us = req.body.usuario;
+    const sh = req.body.senha;
+    Cliente.findOne({usuario:us},(erro,dados)=>{
+        if(erro){
+            return res.status(400).send({output:`Usuario não localizado ${erro}`});
+        }
+        bcrypt.compare(sh,dados.senha,(erro,igual)=>{
+            if(erro) return res.status(400).send({output:`Erro ao tentar logar->${erro}`});
+            if(!igual) return res.status(400).send({output:`Erro ao tentar logar->${erro}`});
+            res.status(200).send({output:`Logado`,palyload:dados});
+        })
+       
+    })
+});
+
+
+
 
 app.put("/api/cliente/atualizar/:id",(req,res)=>{
     Cliente.findByIdAndUpdate(req.params.id,req.body,(erro,dados)=>{
