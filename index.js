@@ -18,7 +18,7 @@ const jwt = require("jsonwebtoken");
 
 const cfn = require("./config");
 
-const url =  "mongodb+srv://matheus:matheus123@clusterclientes.lej2l.mongodb.net/primeiraapi?retryWrites=true&w=majority";
+const url =  "mongodb+srv://nomedeusuarioaqui:senhaaqui@clusterclientes.lej2l.mongodb.net/nomedobancodedadosaqui?retryWrites=true&w=majority";
 
 mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true});
 
