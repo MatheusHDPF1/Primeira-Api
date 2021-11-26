@@ -3,6 +3,8 @@
 // Iniciaremos criando uma referencia do express com a importação do modulo
 const express = require("express");
 
+const cors = require("express");
+
 //Vamos importar o modulo mongoose que fará a interface entre o 
 //nodejs e o banco de dados mongodb
 const mongoose = require("mongoose");
@@ -18,7 +20,7 @@ const jwt = require("jsonwebtoken");
 
 const cfn = require("./config");
 
-const url =  "mongodb+srv://nomedeusuarioaqui:senhaaqui@clusterclientes.lej2l.mongodb.net/nomedobancodedadosaqui?retryWrites=true&w=majority";
+const url =  "mongodb+srv://matheus:matheus123@clusterclientes.lej2l.mongodb.net/primeiraapi?retryWrites=true&w=majority";
 
 mongoose.connect(url, {useNewUrlParser:true, useUnifiedTopology:true});
 
@@ -57,6 +59,7 @@ const app = express();
 
 // Fazer o servidor express receber e tratar dados em formato json
 app.use(express.json());
+app.use(cors())
 
 /*
 Abaixo, iremos criar as 4 rotas para os verbos GET,POST ,PUT,DELETE:
@@ -108,7 +111,7 @@ app.post("/api/cliente/cadastro",(req,res)=>{
         const gerado = criaToken(req.body.usuario,req.body.nome);
         res.status(201).send({output:`Cliente cadastrado`,token:gerado});
     })
-    .catch((erro)=>res.status(400).send({output:`Erro ao tentar cadastrar o cliente -> ${erro}`}))
+    .catch((erro)=>res.status(400).send({output:`Erro ao tentar cadastrar o cliente`,message:erro}))
 });
 
 app.post("/api/cliente/login",(req,res)=>{
@@ -120,7 +123,7 @@ app.post("/api/cliente/login",(req,res)=>{
         }
         bcrypt.compare(sh,dados.senha,(erro,igual)=>{
             if(erro) return res.status(400).send({output:`Erro ao tentar logar->${erro}`});
-            if(!igual) return res.status(400).send({output:`Erro ao tentar logar->${erro}`});
+            if(!igual) return res.status(400).send({output:`Senha inválida->${erro}`});
             const gerado = criaToken(dados.usuario,dados.nome);
             res.status(200).send({output:`Logado`,palyload:dados,token:gerado});
         })
