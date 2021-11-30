@@ -78,7 +78,7 @@ caso será a porta 3000.
 */
 
 
-app.get("/api/cliente/",(req,res)=>{
+app.get("/api/cliente/", verifica,(req,res)=>{
     Cliente.find((erro,dados)=>{
         if(erro){
             return res.status(400).send({output:`Erro ao tentar ler os Clientes -> ${erro}`});
@@ -125,7 +125,7 @@ app.post("/api/cliente/login",(req,res)=>{
             if(erro) return res.status(400).send({output:`Erro ao tentar logar->${erro}`});
             if(!igual) return res.status(400).send({output:`Senha inválida->${erro}`});
             const gerado = criaToken(dados.usuario,dados.nome);
-            res.status(200).send({output:`Logado`,palyload:dados,token:gerado});
+            res.status(200).send({output:`Logado`,payload:dados,token:gerado});
         })
        
     })
@@ -167,7 +167,6 @@ function verifica(req,res,next){
         if(erro){
             return res.status(401).send({output:"Token Inválido"});
         }
-        res.status (200).send({output:`Autorizado`,palyload:`Olá ${dados.nome}`})
         next();
     });
 }
