@@ -144,7 +144,7 @@ app.put("/api/cliente/atualizar/:id",verifica,(req,res)=>{
 });
 
 app.delete("/api/cliente/apagar/:id",verifica,(req,res)=>{
-    Cliente.findOneAndDelete(req.params.id,(erro,dados)=>{
+    Cliente.findByIdAndDelete(req.params.id,(erro,dados)=>{
         if(erro){
             return res.status(400).send({output:`Erro ao tentar apagar o Cliente->${erro}`});
         }
